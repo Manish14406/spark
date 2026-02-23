@@ -1,4 +1,0 @@
-Client - main.py - router - route-function - response
-main.py = head
-router  = Departments
-route-function = head 
