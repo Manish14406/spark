@@ -1,0 +1,11 @@
+Database-session
+   Before any database touch the db we must create a session handler (a safe pipe line btw database Fastapi and PostgreeSQL)
+
+🧠 Order flow (important understanding)
+When someone orders:
+1️⃣ Check product exists
+2️⃣ Check stock available
+3️⃣ Create order
+4️⃣ Reduce stock
+5️⃣ Commit together
+If anything fails → rollback.

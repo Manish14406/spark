@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Lead</title>
+</head>
+<body>
+
+    <h2>Create Lead</h2>
+
+    <form id="leadForm">
+        <input type="number" id="creator_id" placeholder="Creator ID" required />
+        <br><br>
+        <input type="text" id="name" placeholder="Lead Name" />
+        <br><br>
+        <input type="email" id="email" placeholder="Lead Email" required />
+        <br><br>
+        <input type="text" id="phone" placeholder="Phone" />
+        <br><br>
+        <input type="text" id="source" placeholder="Source (instagram, ad, etc)" />
+        <br><br>
+        <button type="submit">Create Lead</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        const form = document.getElementById("leadForm");
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const data = {
+                creator_id: Number(document.getElementById("creator_id").value),
+                name: document.getElementById("name").value,
+                email: document.getElementById("email").value,
+                phone: document.getElementById("phone").value,
+                source: document.getElementById("source").value
+            };
+
+            const response = await fetch("http://127.0.0.1:8000/leads", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            document.getElementById("response").innerText = JSON.stringify(result);
+        });
+    </script>
+
+</body>
+</html>

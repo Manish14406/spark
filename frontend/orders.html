@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Create Order</title>
+</head>
+<body>
+
+    <h2>Create Order</h2>
+
+    <form id="orderForm">
+        <input type="number" id="product_id" placeholder="Product ID" required />
+        <br><br>
+        <input type="number" id="quantity" placeholder="Quantity" required />
+        <br><br>
+        <button type="submit">Place Order</button>
+    </form>
+
+    <p id="response"></p>
+
+    <script>
+        const form = document.getElementById("orderForm");
+
+        form.addEventListener("submit", async function(event) {
+            event.preventDefault();
+
+            const data = {
+                product_id: Number(document.getElementById("product_id").value),
+                quantity: Number(document.getElementById("quantity").value)
+            };
+
+            const response = await fetch("http://127.0.0.1:8000/orders", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify(data)
+            });
+
+            const result = await response.json();
+            document.getElementById("response").innerText = JSON.stringify(result);
+        });
+    </script>
+
+</body>
+</html>
