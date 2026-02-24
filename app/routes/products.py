@@ -9,35 +9,35 @@ from app.models.creator import Creator
 
 router = APIRouter()
 
+from pydantic import BaseModel
+
+class ProductCreate(BaseModel):
+    name: str
+    price: float
+    stock: int
+
 @router.post("/products")
 def create_product(
-    creator_id: int,
-    name: str,
-    price: float,
-    stock: int = 0,
+    data: ProductCreate,
     db: Session = Depends(get_db),
-    user_id: int = Depends(get_current_user)   # JWT PROTECTION
+    user_id: int = Depends(get_current_user)
 ):
-    """
-    Creates a product for a creator.
-    """
-
-    # 1. Make sure creator exists
-    creator = db.query(Creator).filter(Creator.id == creator_id).first()
-    if not creator:
-        raise HTTPException(status_code=404, detail="Creator not found")
-
-    # 2. Create product
     product = Product(
-        creator_id=creator_id,
-        name=name,
-        price=price,
-        stock=stock
+        creator_id=user_id,
+        name=data.name,
+        price=data.price,
+        stock=data.stock
     )
 
-    # 3. Save to DB
     db.add(product)
     db.commit()
     db.refresh(product)
 
     return product
+
+@router.get("/products")
+def get_products(
+    db: Session = Depends(get_db),
+    user_id: int = Depends(get_current_user)
+):
+    return db.query(Product).filter(Product.creator_id == user_id).all()

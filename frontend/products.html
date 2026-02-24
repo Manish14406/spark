@@ -1,55 +1,111 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Products</title>
+  <title>Products</title>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ddd; padding: 8px; }
+    th { background: #f4f4f4; }
+    input, button { padding: 6px; margin: 4px; }
+  </style>
 </head>
 <body>
 
-<h2>Create Product</h2>
+<h2>Products Dashboard</h2>
 
 <form id="productForm">
-    <input type="text" id="name" placeholder="Product name" required />
-    <br><br>
-    <input type="number" id="price" placeholder="Price" required />
-    <br><br>
-    <input type="number" id="stock" placeholder="Stock" required />
-    <br><br>
-    <button type="submit">Create Product</button>
+  <input id="name" placeholder="Name" required>
+  <input id="price" type="number" placeholder="Price" required>
+  <input id="stock" type="number" placeholder="Stock" required>
+  <button>Add Product</button>
 </form>
 
 <p id="msg"></p>
 
+<table>
+  <thead>
+    <tr>
+      <th>Name</th>
+      <th>Price</th>
+      <th>Stock</th>
+    </tr>
+  </thead>
+  <tbody id="productTable"></tbody>
+</table>
+
 <script>
+/* ================= AUTH ================= */
+
 const token = localStorage.getItem("token");
 
 if (!token) {
-    window.location.href = "index.html";
+  location.href = "index.html";
 }
 
-document.getElementById("productForm").addEventListener("submit", async function(e) {
-    e.preventDefault();
+/* ================= INPUTS ================= */
 
-    const response = await fetch("http://127.0.0.1:8000/products", {
-        method: "POST",
-        headers: {
-            "Content-Type": "application/json",
-            "Authorization": "Bearer " + token
-        },
-        body: JSON.stringify({
-            name: document.getElementById("name").value,
-            price: Number(document.getElementById("price").value),
-            stock: Number(document.getElementById("stock").value)
-        })
-    });
+const nameInput = document.getElementById("name");
+const priceInput = document.getElementById("price");
+const stockInput = document.getElementById("stock");
 
-    const data = await response.json();
+/* ================= LOAD PRODUCTS ================= */
 
-    if (response.ok) {
-        document.getElementById("msg").innerText = "Product created successfully!";
-    } else {
-        document.getElementById("msg").innerText = data.detail;
+async function loadProducts() {
+  const res = await fetch("http://127.0.0.1:8000/products", {
+    headers: {
+      "Authorization": "Bearer " + token
     }
+  });
+
+  const products = await res.json();
+  const table = document.getElementById("productTable");
+  table.innerHTML = "";
+
+  products.forEach(p => {
+    table.innerHTML += `
+      <tr>
+        <td>${p.name}</td>
+        <td>₹${p.price}</td>
+        <td>${p.stock}</td>
+      </tr>
+    `;
+  });
+}
+
+/* ================= ADD PRODUCT ================= */
+
+document.getElementById("productForm").addEventListener("submit", async e => {
+  e.preventDefault();
+
+  if (!nameInput.value || !priceInput.value || !stockInput.value) {
+    alert("Fill all fields");
+    return;
+  }
+
+  await fetch("http://127.0.0.1:8000/products", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      "Authorization": "Bearer " + token
+    },
+    body: JSON.stringify({
+      name: nameInput.value,
+      price: Number(priceInput.value),
+      stock: Number(stockInput.value)
+    })
+  });
+
+  nameInput.value = "";
+  priceInput.value = "";
+  stockInput.value = "";
+
+  loadProducts();
 });
+
+/* ================= INIT ================= */
+
+loadProducts();
 </script>
 
 </body>
